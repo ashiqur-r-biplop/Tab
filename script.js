@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!isHovering) {
       nextSlide();
     }
-  }, 5000); // Change slide every 5 seconds
+  }, 6000); // Change slide every 5 seconds
 
   // Pause on hover
   slider.addEventListener("mouseover", () => {
@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!isHovering) {
         nextSlide();
       }
-    }, 3000);
+    }, 6000);
   });
 
   // Next button click event
