@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const textContainers = document.querySelectorAll(".text-container");
 
   let counter = 0;
-  let isHovering = false;
   let autoSlideInterval;
 
   // Function to animate text
@@ -23,9 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Auto slide function
   function autoSlide() {
-    if (!isHovering) {
-      nextSlide();
-    }
+    nextSlide();
   }
 
   // Start auto sliding
@@ -37,81 +34,41 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Pause auto sliding on hover
   slider.addEventListener("mouseover", () => {
-    isHovering = true;
     clearInterval(autoSlideInterval);
   });
 
   slider.addEventListener("mouseout", () => {
-    isHovering = false;
     startAutoSlide();
   });
 
-  // Next button click event
+  // Next and Prev button click events
   nextBtn.addEventListener("click", () => {
+    clearInterval(autoSlideInterval);
     nextSlide();
-    if (counter === slides.length - 1) {
-      clearInterval(autoSlideInterval);
-      startAutoSlide(); // Start auto sliding after reaching last slide
-    }
+    startAutoSlide(); // Restart auto sliding after manual navigation
   });
 
-  // Prev button click event
   prevBtn.addEventListener("click", () => {
+    clearInterval(autoSlideInterval);
     prevSlide();
+    startAutoSlide(); // Restart auto sliding after manual navigation
   });
-
-  // Dragging functionality
-  let startX;
-  let dragLength;
-
-  slider.addEventListener("mousedown", (e) => {
-    startX = e.clientX;
-    slider.addEventListener("mousemove", mousemoveHandler);
-  });
-
-  slider.addEventListener("mouseup", (e) => {
-    slider.removeEventListener("mousemove", mousemoveHandler);
-    if (dragLength < -50) {
-      nextSlide();
-      if (counter === slides.length - 1) {
-        clearInterval(autoSlideInterval);
-        startAutoSlide();
-      }
-    } else if (dragLength > 50) {
-      prevSlide();
-    }
-  });
-
-  function mousemoveHandler(e) {
-    dragLength = e.clientX - startX;
-  }
 
   // Next slide function
   function nextSlide() {
-    counter++;
-    if (counter >= slides.length) {
-      counter = 0;
-    }
+    counter = (counter + 1) % slides.length;
     slider.style.transform = `translateX(-${counter * slideWidth}px)`;
     animateText();
   }
 
   // Prev slide function
   function prevSlide() {
-    counter--;
-    if (counter < 0) {
-      counter = slides.length - 1;
-    }
+    counter = (counter - 1 + slides.length) % slides.length;
     slider.style.transform = `translateX(-${counter * slideWidth}px)`;
     animateText();
   }
 
-  // Add auto slide functionality to prev button
-  setInterval(() => {
-    if (!isHovering) {
-      prevSlide();
-    }
-  }, 6000);
+  // Initialize text animation
   setTimeout(() => {
     animateText();
   }, 300);
