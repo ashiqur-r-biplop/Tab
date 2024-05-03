@@ -1,34 +1,3 @@
-function animateText() {
-  // Iterate over each text container
-  textContainers.forEach((container, index) => {
-    if (index === counter) {
-      // Add animation class for text and buttons
-      container.classList.add("animate");
-      const heading = container.querySelector(".section-title");
-      const subheading = container.querySelector("h3");
-      const buttons = container.querySelector(".buttons");
-
-      // Reset text and buttons positions
-      heading.style.transform = "translateX(-100%)";
-      heading.style.animation = "text 2s 1";
-      subheading.style.transform = "translateY(-100%)";
-      buttons.style.transform = "translateY(100%)";
-   
-
-      // Add animation effect using setTimeout to stagger the animations
-      setTimeout(() => {
-        heading.style.transform = "translateX(0)";
-        heading.style.animation = "text 2s 1";
-        subheading.style.transform = "translateY(0)";
-        buttons.style.transform = "translateY(0)";
-      }, 100);
-    } else {
-      // Remove animation class for other slides
-      container.classList.remove("animate");
-    }
-  });
-}
-
 document.addEventListener("DOMContentLoaded", function () {
   const slider = document.querySelector(".slider");
   const slides = document.querySelectorAll(".slide");
@@ -39,15 +8,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
   let counter = 0;
   let isHovering = false;
+  let autoSlideInterval;
 
-  // Auto loop
-  let autoSlideInterval = setInterval(() => {
+  // Function to animate text
+  function animateText() {
+    textContainers.forEach((container, index) => {
+      if (index === counter) {
+        container.classList.add("animate");
+      } else {
+        container.classList.remove("animate");
+      }
+    });
+  }
+
+  // Auto slide function
+  function autoSlide() {
     if (!isHovering) {
       nextSlide();
     }
-  }, 6000); // Change slide every 5 seconds
+  }
 
-  // Pause on hover
+  // Start auto sliding
+  function startAutoSlide() {
+    autoSlideInterval = setInterval(autoSlide, 6000);
+  }
+
+  startAutoSlide(); // Start auto sliding initially
+
+  // Pause auto sliding on hover
   slider.addEventListener("mouseover", () => {
     isHovering = true;
     clearInterval(autoSlideInterval);
@@ -55,18 +43,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
   slider.addEventListener("mouseout", () => {
     isHovering = false;
-    autoSlideInterval = setInterval(() => {
-      if (!isHovering) {
-        nextSlide();
-      }
-    }, 6000);
+    startAutoSlide();
   });
 
   // Next button click event
-  nextBtn.addEventListener("click", nextSlide);
+  nextBtn.addEventListener("click", () => {
+    nextSlide();
+    if (counter === slides.length - 1) {
+      clearInterval(autoSlideInterval);
+      startAutoSlide(); // Start auto sliding after reaching last slide
+    }
+  });
 
   // Prev button click event
-  prevBtn.addEventListener("click", prevSlide);
+  prevBtn.addEventListener("click", () => {
+    prevSlide();
+  });
 
   // Dragging functionality
   let startX;
@@ -81,6 +73,10 @@ document.addEventListener("DOMContentLoaded", function () {
     slider.removeEventListener("mousemove", mousemoveHandler);
     if (dragLength < -50) {
       nextSlide();
+      if (counter === slides.length - 1) {
+        clearInterval(autoSlideInterval);
+        startAutoSlide();
+      }
     } else if (dragLength > 50) {
       prevSlide();
     }
@@ -90,37 +86,32 @@ document.addEventListener("DOMContentLoaded", function () {
     dragLength = e.clientX - startX;
   }
 
-// Next slide function
-function nextSlide() {
-  counter++;
-  if (counter >= slides.length) {
-    counter = 0;
+  // Next slide function
+  function nextSlide() {
+    counter++;
+    if (counter >= slides.length) {
+      counter = 0;
+    }
+    slider.style.transform = `translateX(-${counter * slideWidth}px)`;
+    animateText();
   }
-  slider.style.transform = `translateX(-${counter * slideWidth}px)`;
-  animateText(); // Call animateText() after sliding
-}
 
-// Prev slide function
-function prevSlide() {
-  counter--;
-  if (counter < 0) {
-    counter = slides.length - 1;
+  // Prev slide function
+  function prevSlide() {
+    counter--;
+    if (counter < 0) {
+      counter = slides.length - 1;
+    }
+    slider.style.transform = `translateX(-${counter * slideWidth}px)`;
+    animateText();
   }
-  slider.style.transform = `translateX(-${counter * slideWidth}px)`;
-  animateText(); // Call animateText() after sliding
-}
 
-
-  // Text animation function
-  function animateText() {
-    textContainers.forEach((container, index) => {
-      if (index === counter) {
-        container.classList.add("animate");
-      } else {
-        container.classList.remove("animate");
-      }
-    });
-  }
+  // Add auto slide functionality to prev button
+  setInterval(() => {
+    if (!isHovering) {
+      prevSlide();
+    }
+  }, 6000);
   setTimeout(() => {
     animateText();
   }, 300);
